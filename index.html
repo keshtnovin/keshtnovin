@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>کشت نوین | فروشگاه محصولات تازه</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="nav wrap">
+<a class="logo" href="#">کشت <b>نوین</b></a>
+<nav><a href="#products">محصولات</a><a href="#about">درباره ما</a><a href="#contact">تماس</a></nav>
+<button class="cartBtn" onclick="openCart()">سبد خرید <span id="count">0</span></button>
+</div></header>
+
+<section class="hero"><div class="wrap heroGrid"><div>
+<span class="eyebrow">مستقیم از مزرعه</span>
+<h1>محصولات تازه،<br><b>با خیال راحت خرید کن.</b></h1>
+<p>کشت نوین؛ فروش مستقیم محصولات با توضیح شفاف درباره کیفیت، قیمت و موجودی.</p>
+<a class="btn" href="#products">دیدن محصولات</a>
+</div><img src="images/farm.jpg" alt="مزرعه کشت نوین"></div></section>
+
+<section id="products" class="wrap section">
+<div class="title"><div><span class="eyebrow">فروشگاه</span><h2>محصولات کشت نوین</h2></div><p>قیمت‌ها به تومان و بر اساس هر کیلو هستند.</p></div>
+<div id="productGrid" class="grid"></div>
+</section>
+
+<section id="about" class="about"><div class="wrap"><span class="eyebrow">کشت نوین</span><h2>مستقیم از مزرعه تا سفره</h2><p>هدف ما فروش محصول با توضیح واقعی و قیمت مشخص است؛ نه تعریف اضافه و نه وعده بی‌دلیل.</p></div></section>
+
+<section id="contact" class="wrap contact"><h2>سفارش</h2><p>محصولات را به سبد اضافه کن و سفارش را آماده کن؛ سپس از طریق اینستاگرام با ما هماهنگ کن.</p><a class="btn" href="https://instagram.com/kesht_novin" target="_blank">@kesht_novin</a></section>
+
+<footer><div class="wrap">کشت نوین · <a href="https://instagram.com/kesht_novin" target="_blank">@kesht_novin</a></div></footer>
+
+<div id="overlay" class="overlay" onclick="closeCart(event)"><aside class="cart" onclick="event.stopPropagation()">
+<div class="cartHead"><h2>سبد خرید</h2><button onclick="closeCart()">×</button></div>
+<div id="cartItems"></div><div class="total">جمع: <b id="total">۰</b> تومان</div>
+<button class="order" onclick="copyOrder()">کپی متن سفارش</button>
+<a class="instagram" href="https://instagram.com/kesht_novin" target="_blank">باز کردن اینستاگرام</a>
+<p class="hint">بعد از کپی، متن سفارش را در پیام اینستاگرام برای ما بفرست.</p>
+</aside></div>
+
+<script>
+const products = [{"id": 1, "name": "گردوی سفید مغز درجه یک", "price": 1200000, "unit": "کیلو", "desc": "مغز روشن، بدون پوچ؛ محصول باغ خودمان.", "image": "images/produce.jpg"}, {"id": 2, "name": "گردوی مغز قهوه‌ای", "price": 890000, "unit": "کیلو", "desc": "گردوی عالی با مغز قهوه‌ای و بدون پوچ.", "image": "images/produce2.jpg"}, {"id": 3, "name": "مارچوبه تازه", "price": 0, "unit": "کیلو", "desc": "محصول فصلی؛ قیمت و موجودی را قبل از سفارش استعلام کنید.", "image": "images/asparagus2.webp"}];
+let cart = JSON.parse(localStorage.getItem('kn_cart')||'{}');
+const fa=n=>new Intl.NumberFormat('fa-IR').format(n);
+function renderProducts(){
+ document.getElementById('productGrid').innerHTML=products.map(p=>`
+ <article class="card"><img src="${p.image}" alt="${p.name}">
+ <div class="body"><span class="tag">${p.price? 'موجود':'استعلام قیمت'}</span><h3>${p.name}</h3><p>${p.desc}</p>
+ ${p.price?`<div class="price">${fa(p.price)} <small>تومان / ${p.unit}</small></div>`:`<div class="price">قیمت روز <small>با پیام استعلام شود</small></div>`}
+ <button class="add" onclick="add(${p.id})">${p.price?'افزودن به سبد':'افزودن برای استعلام'}</button></div></article>`).join('');
+}
+function add(id){cart[id]=(cart[id]||0)+1;save();openCart();}
+function save(){localStorage.setItem('kn_cart',JSON.stringify(cart));updateCount();renderCart();}
+function updateCount(){document.getElementById('count').textContent=fa(Object.values(cart).reduce((a,b)=>a+b,0));}
+function renderCart(){
+ let keys=Object.keys(cart); let total=0;
+ document.getElementById('cartItems').innerHTML=keys.length?keys.map(id=>{
+ let p=products.find(x=>x.id==id), q=cart[id]; total+=(p.price||0)*q;
+ return `<div class="item"><img src="${p.image}"><div><b>${p.name}</b><div>${fa(p.price||0)} تومان × ${fa(q)}</div>
+ <button onclick="change(${p.id},-1)">−</button><button onclick="change(${p.id},1)">+</button></div></div>`}).join(''):'<p class="empty">سبد خرید خالی است.</p>';
+ document.getElementById('total').textContent=fa(total);
+}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();}
+function openCart(){document.getElementById('overlay').classList.add('show');renderCart();}
+function closeCart(e){if(!e||e.target.id==='overlay')document.getElementById('overlay').classList.remove('show');}
+function copyOrder(){
+ let lines=['سلام، برای سفارش از کشت نوین:',''];
+ Object.keys(cart).forEach(id=>{let p=products.find(x=>x.id==id);lines.push(`• ${p.name} — ${cart[id]} ${p.unit}`)});
+ lines.push('','لطفاً موجودی، مبلغ نهایی و شرایط ارسال را اعلام کنید.');
+ navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('متن سفارش کپی شد؛ حالا وارد اینستاگرام شوید و ارسال کنید.'));
+}
+renderProducts();updateCount();renderCart();
+</script>
+</body></html>
