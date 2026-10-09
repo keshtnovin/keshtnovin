@@ -1,0 +1,23 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مدیریت کشت نوین</title><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="wrap nav"><a class="logo" href="index.html">کشت <b>نوین</b></a><a class="back" href="index.html">← مشاهده فروشگاه</a></div></header>
+<main class="wrap admin"><div id="login"><div class="login"><span class="eyebrow">پنل مدیریت</span><h1>ورود مدیر</h1><p>رمز پنل را وارد کنید.</p><input id="pass" type="password" placeholder="رمز مدیریت"><button class="btn" onclick="login()">ورود</button><small>رمز اولیه: 1234 — بعد از ورود حتماً از بخش تغییر رمز، آن را عوض کن.</small></div></div>
+<div id="panel" style="display:none"><div class="adminHead"><div><span class="eyebrow">مدیریت فروشگاه</span><h1>محصولات</h1></div><button class="btn" onclick="newProduct()">＋ محصول جدید</button></div>
+<div class="notice">محصولات این نسخه در مرورگر ذخیره می‌شوند. برای فروشگاه عمومی و مدیریت از چند دستگاه، بعداً باید دیتابیس و ورود سروری اضافه کنیم.</div>
+<div id="list"></div>
+<div class="change"><h2>تغییر رمز این دستگاه</h2><input id="newpass" type="password" placeholder="رمز جدید"><button class="btn" onclick="changePass()">ذخیره رمز</button></div>
+</div></main>
+<script>
+const defaults=[{"id": 1, "name": "گردوی سفید مغز درجه یک", "price": 1200000, "unit": "کیلو", "stock": true, "desc": "مغز روشن، بدون پوچ؛ محصول باغ خودمان.", "image": "images/walnut.jpg"}, {"id": 2, "name": "گردوی مغز قهوه‌ای", "price": 890000, "unit": "کیلو", "stock": true, "desc": "گردوی عالی با مغز قهوه‌ای و بدون پوچ.", "image": "images/produce.jpg"}, {"id": 3, "name": "مارچوبه تازه", "price": 0, "unit": "کیلو", "stock": false, "desc": "محصول فصلی؛ موجودی و قیمت روز را استعلام کنید.", "image": "images/asparagus2.webp"}];let products=JSON.parse(localStorage.getItem('kn_products')||'null')||defaults;
+function login(){let p=document.getElementById('pass').value, saved=localStorage.getItem('kn_admin_pass')||'1234';if(p===saved){sessionStorage.setItem('kn_login','1');show()}else alert('رمز اشتباه است.')}
+function show(){document.getElementById('login').style.display='none';document.getElementById('panel').style.display='block';render()}
+function render(){document.getElementById('list').innerHTML=products.map((p,i)=>`<div class="adminCard"><div class="thumb"><img src="${p.image}" onerror="this.src='images/produce.jpg'"></div><div class="fields">
+<label>نام<input id="n${i}" value="${esc(p.name)}"></label><label>قیمت<input id="p${i}" type="number" value="${p.price}"></label><label>واحد<input id="u${i}" value="${esc(p.unit)}"></label><label>عکس<input id="i${i}" value="${esc(p.image)}"></label><label class="wide">توضیحات<input id="d${i}" value="${esc(p.desc||'')}"></label>
+<label class="check"><input id="s${i}" type="checkbox" ${p.stock?'checked':''}> موجود</label></div><div class="row"><button onclick="save(${i})" class="btn">ذخیره</button><button onclick="del(${i})" class="danger">حذف</button></div></div>`).join('')}
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+function save(i){products[i]={id:products[i].id,name:document.getElementById('n'+i).value,price:+document.getElementById('p'+i).value,unit:document.getElementById('u'+i).value,image:document.getElementById('i'+i).value,desc:document.getElementById('d'+i).value,stock:document.getElementById('s'+i).checked};localStorage.setItem('kn_products',JSON.stringify(products));alert('ذخیره شد')}
+function del(i){if(confirm('این محصول حذف شود؟')){products.splice(i,1);localStorage.setItem('kn_products',JSON.stringify(products));render()}}
+function newProduct(){products.push({id:Date.now(),name:'محصول جدید',price:0,unit:'کیلو',stock:true,desc:'',image:'images/produce.jpg'});localStorage.setItem('kn_products',JSON.stringify(products));render()}
+function changePass(){let p=document.getElementById('newpass').value;if(p.length<6)return alert('رمز باید حداقل ۶ کاراکتر باشد.');localStorage.setItem('kn_admin_pass',p);alert('رمز جدید ذخیره شد.')}
+if(sessionStorage.getItem('kn_login')==='1')show()
+</script></body></html>
